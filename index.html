@@ -17,14 +17,18 @@
 
     <div class="content">
         <p>Use the form below to calculate overhead:</p>
-        <label for="num1">Enter first number:</label>
-        <input type="number" id="num1" inputmode="decimal">
+        <label for="numActualPrice">Card Price:</label>
+        <input type="number" id="numActualPrice" inputmode="decimal">
         <br>
-        <label for="num2">Enter second number:</label>
-        <input type="number" id="num2" inputmode="decimal">
+        <label for="numMarketPrice">Market Price:</label>
+        <input type="number" id="numMarketPrice" inputmode="decimal">
+        <br>
+        <label for="boolSalesTax">Calculate w/ Sales Tax?</label>
+        <input type="radio" id="boolSalesTax">
         <br>
         <button onclick="calculate()">Calculate</button>
         <p id="result"></p>
+
     </div>
 
     <div class="footer">
@@ -33,9 +37,9 @@
 
     <script>
         function calculate() {
-            let num1 = parseFloat(document.getElementById("num1").value);
-            let num2 = parseFloat(document.getElementById("num2").value);
-            let result = num1 + num2;
+            let numActualPrice = parseFloat(document.getElementById("numActualPrice").value);
+            let numMarketPrice = parseFloat(document.getElementById("numMarketPrice").value);
+            let result = numActualPrice + numMarketPrice;
             document.getElementById("result").textContent = "Result: " + result;
         }
     </script>
