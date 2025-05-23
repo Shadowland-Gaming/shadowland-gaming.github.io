@@ -29,23 +29,48 @@
       <label for="numMarketPrice">Market Price:</label>
       <input type="number" id="numMarketPrice" inputmode="decimal">
       <br>
-      <!--
-      <label for="boolSalesTax">Include Sales Tax in calculation?</label>
-      <input type="checkbox" id="boolSalesTax">
-      -->
       <br>
-      <button id="btnCalculate" onclick="calculate()">Calculate</button>
+      <button id="btnCalculate" type="submit" onclick="calculate()">Calculate</button>
     </section>
-    <br><br>
+    <hr>
     <section class="results">
-      <h2>Results:</h2>
-      <p id="txtActualPrice"></p>
-      <p id="txtMarketPrice"></p>
+      <h3>Results:</h3>
+      <p id="txtActualPrice">Cost:</p>
+      <p id="txtMarketPrice">Market Price:</p>
+      <p id="txtPercentBelowMarket">% Below Market:</p>
+      <br>
+      <p id="txtSalesTax">Sales Tax:</p>
+      <p id="txtAcquiredCost">Acquired Cost:</p>
+
       <hr>
-      <p id=""></p>
-      <p id="txtSalesTax"></p>
-      <p id="result2"></p>
-      <p id="txtPercentBelowMarket"></p>
+      <h6>ignore table values for now lol</h6>
+      <table id="tblSellerFees" class="table table-striped">
+        <tr class="table-header">
+          <th>Seller</th>
+          <th>Fees</th>
+          <th>Profit</th>
+          <th>Total Profit</th>
+        </tr>
+        <tr>
+          <td>TCG Player</td>
+          <td id="txtTcgFee"></td>
+          <td id="txtTcgProfit"></td>
+          <td id="txtTcgTotalProfit"></td>
+        </tr>
+        <tr>
+          <td>eBay</td>
+          <td id="txtEbayFee"></td>
+          <td id="txtEbayProfit"></td>
+          <td id="txtEbayTotalProfit"></td>
+        </tr>
+        <tr>
+          <td>Whatnot</td>
+          <td id="txtWhatnotFee"></td>
+          <td id="txtWhatnotProfit"></td>
+          <td id="txtWhatnotTotalProfit"></td>
+        </tr>
+      </table>
+      
     </section>
   </div>
 
