@@ -1,1 +1,2 @@
-# shadowland-gaming.github.io
+# Shadowland Gaming Web App
+[Link to page](shadowland-gaming.github.io)
