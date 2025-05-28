@@ -1,3 +1,22 @@
+window.onload = function() {
+    //loadSitewideComponents();
+}
+
+function loadSitewideComponents() {
+    fetch('components/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('siteHeader').innerHTML = data;
+        });
+
+    fetch('components/footer.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('siteFooter').innerHTML = data;
+        });
+
+}
+
 function calculate() {
     const numSalesTax = 0.07;
     const numShippingCost = 1.19;
