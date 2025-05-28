@@ -1,5 +1,5 @@
 window.onload = function() {
-    //loadSitewideComponents();
+    loadSitewideComponents();
 }
 
 function loadSitewideComponents() {
