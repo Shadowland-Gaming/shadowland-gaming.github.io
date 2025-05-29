@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCGPlayer Profit Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics if needed */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .input-label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        .input-field {
+            @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+        }
+        .result-label {
+            @apply text-gray-600 font-medium;
+        }
+        .result-value {
+            @apply text-gray-900 font-semibold;
+        }
+        .profit {
+            @apply text-green-600 font-bold text-xl;
+        }
+        .loss {
+            @apply text-red-600 font-bold text-xl;
+        }
+        /* Simple modal style */
+        .modal {
+            @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50;
+        }
+        .modal-content {
+            @apply bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-2xl">
+        <header class="mb-6 sm:mb-8 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-indigo-700">TCGPlayer Profit Calculator</h1>
+            <p class="text-sm text-gray-500 mt-1">Estimate your profit from TCG sales.</p>
+        </header>
+
+        <form id="profitCalculatorForm" class="space-y-4 sm:space-y-6">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Card & Sale Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="acquisitionPrice" class="input-label">1. Acquisition Price ($):</label>
+                        <input type="number" id="acquisitionPrice" name="acquisitionPrice" class="input-field" placeholder="e.g., 5.00" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">Cost to acquire the card.</p>
+                    </div>
+                    <div>
+                        <label for="salePrice" class="input-label">2. Sale Price ($):</label>
+                        <input type="number" id="salePrice" name="salePrice" class="input-field" placeholder="e.g., 10.00" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">Price you sell the card for.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Shipping Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="shippingCharged" class="input-label">3. Shipping Charged to Buyer ($):</label>
+                        <input type="number" id="shippingCharged" name="shippingCharged" class="input-field" placeholder="e.g., 1.00" value="0.99" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">Amount buyer pays for shipping.</p>
+                    </div>
+                    <div>
+                        <label for="actualShippingCost" class="input-label">4. Actual Shipping Cost ($):</label>
+                        <input type="number" id="actualShippingCost" name="actualShippingCost" class="input-field" placeholder="e.g., 0.68" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">Your cost for postage (e.g., stamp).</p>
+                    </div>
+                    <div>
+                        <label for="packagingCost" class="input-label">5. Packaging Material Cost ($):</label>
+                        <input type="number" id="packagingCost" name="packagingCost" class="input-field" placeholder="e.g., 0.15" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">Cost of envelope, sleeve, toploader, etc.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">TCGPlayer Fee Configuration</h2>
+                <p class="text-xs text-gray-500 mb-3">
+                    Note: TCGPlayer fees can vary. Verify current rates on TCGPlayer's site.
+                    The Payment Processing Fee is typically applied to the (Sale Price + Shipping Charged).
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="tcgCommissionRate" class="input-label">6. Commission Rate (%):</label>
+                        <input type="number" id="tcgCommissionRate" name="tcgCommissionRate" class="input-field" value="10.25" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">e.g., 8.95 for Pro, 10.25 for Level 4. Applied to Sale Price.</p>
+                    </div>
+                    <div>
+                        <label for="paymentProcessingRate" class="input-label">7. Payment Processing Rate (%):</label>
+                        <input type="number" id="paymentProcessingRate" name="paymentProcessingRate" class="input-field" value="2.99" step="0.01" required>
+                         <p class="text-xs text-gray-500 mt-1">e.g., 2.99. Applied to (Sale Price + Shipping Charged).</p>
+                    </div>
+                    <div>
+                        <label for="paymentProcessingFixedFee" class="input-label">8. Payment Processing Fixed Fee ($):</label>
+                        <input type="number" id="paymentProcessingFixedFee" name="paymentProcessingFixedFee" class="input-field" value="0.30" step="0.01" required>
+                        <p class="text-xs text-gray-500 mt-1">e.g., 0.30 per transaction.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
+                <button type="button" id="calculateButton" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                    Calculate Profit
+                </button>
+                <button type="button" id="resetButton" class="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                    Reset Fields
+                </button>
+            </div>
+        </form>
+
+        <div id="resultsArea" class="mt-6 sm:mt-8 pt-6 border-t border-gray-300 space-y-3 hidden">
+            <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 text-center">Calculation Results</h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                <div class="flex justify-between items-center">
+                    <span class="result-label">Gross Revenue:</span>
+                    <span id="grossRevenueResult" class="result-value"></span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">(Sale Price + Shipping Charged)</p>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                <h3 class="text-md font-semibold text-gray-700 mb-2">TCGPlayer Fees:</h3>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="result-label ml-2">&bull; Commission Fee:</span>
+                    <span id="tcgCommissionFeeResult" class="result-value"></span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="result-label ml-2">&bull; Payment Processing Fee:</span>
+                    <span id="paymentProcessingFeeResult" class="result-value"></span>
+                </div>
+                <hr class="my-1">
+                <div class="flex justify-between items-center font-bold">
+                    <span class="result-label ml-2">Total TCGPlayer Fees:</span>
+                    <span id="totalTcgFeesResult" class="result-value"></span>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg shadow">
+                 <h3 class="text-md font-semibold text-gray-700 mb-2">Total Expenses:</h3>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="result-label ml-2">&bull; Acquisition Price:</span>
+                    <span id="expenseAcquisitionResult" class="result-value"></span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="result-label ml-2">&bull; Actual Shipping Cost:</span>
+                    <span id="expenseShippingResult" class="result-value"></span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="result-label ml-2">&bull; Packaging Cost:</span>
+                    <span id="expensePackagingResult" class="result-value"></span>
+                </div>
+                 <div class="flex justify-between items-center mb-1">
+                    <span class="result-label ml-2">&bull; Total TCGPlayer Fees:</span>
+                    <span id="expenseTcgFeesResult" class="result-value"></span>
+                </div>
+                <hr class="my-1">
+                <div class="flex justify-between items-center font-bold">
+                    <span class="result-label">Total Expenses:</span>
+                    <span id="totalExpensesResult" class="result-value"></span>
+                </div>
+            </div>
+            
+            <div class="text-center pt-4">
+                <p class="text-lg font-semibold text-gray-800">Net Profit / (Loss):</p>
+                <p id="netProfitResult" class="text-2xl font-bold mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 class="text-lg font-semibold text-red-600 mb-2">Input Error</h3>
+            <p id="errorMessage" class="text-sm text-gray-700 mb-4"></p>
+            <button id="closeModalButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded w-full">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <footer class="text-center text-sm text-gray-500 mt-8 pb-4">
+        <p>&copy; <span id="currentYear"></span> TCG Profit Calculator. For estimation purposes only.</p>
+        <p>Always verify current TCGPlayer fees and policies.</p>
+    </footer>
+
+    <script src="js/tcgCalcGemini.js"></script>
+</body>
+</html>
