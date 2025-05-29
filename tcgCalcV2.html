@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCGPlayer Profitability Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        .input-field {
+            @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+        }
+        .currency-symbol {
+            @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 sm:text-sm;
+        }
+        .percentage-symbol {
+            @apply absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500 sm:text-sm;
+        }
+        .input-field-currency {
+            @apply pl-7; /* Padding for the currency symbol */
+        }
+         .input-field-percentage {
+            @apply pr-7; /* Padding for the percentage symbol */
+        }
+        .result-item {
+            @apply flex justify-between py-2 px-3 bg-gray-50 rounded-md mb-2;
+        }
+        .result-label {
+            @apply text-sm font-medium text-gray-600;
+        }
+        .result-value {
+            @apply text-sm font-semibold text-gray-900;
+        }
+        /* Custom styling for number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 py-8">
+    <div class="w-full max-w-3xl bg-white shadow-xl rounded-lg p-6 md:p-8"> {/* Increased max-width for more space */}
+        <header class="mb-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-indigo-600">TCGPlayer Profitability Calculator</h1>
+            <p class="text-sm text-gray-500 mt-1">Estimate your profit from TCGPlayer sales.</p>
+        </header>
+
+        <div class="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
+                <button type="button" id="goBackButton" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 ease-in-out">
+                    Go Back
+                </button>
+            </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">Pricing & Costs</h2>
+                <div>
+                    <label for="acquisitionPrice" class="input-label">Acquisition Price (for main calc):</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="currency-symbol">$</div>
+                        <input type="number" name="acquisitionPrice" id="acquisitionPrice" class="input-field input-field-currency" placeholder="0.00" step="0.01" oninput="calculateProfit()">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="salePrice" class="input-label">Sale Price (on TCGPlayer):</label>
+                     <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="currency-symbol">$</div>
+                        <input type="number" name="salePrice" id="salePrice" class="input-field input-field-currency" placeholder="0.00" step="0.01" oninput="calculateProfit()">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="shippingChargedToBuyer" class="input-label">Shipping Charged to Buyer:</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="currency-symbol">$</div>
+                        <input type="number" name="shippingChargedToBuyer" id="shippingChargedToBuyer" class="input-field input-field-currency" placeholder="0.00" step="0.01" value="0.99" oninput="calculateProfit()">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="actualShippingCost" class="input-label">Actual Shipping Cost (Postage & Materials):</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="currency-symbol">$</div>
+                        <input type="number" name="actualShippingCost" id="actualShippingCost" class="input-field input-field-currency" placeholder="0.00" step="0.01" value="0.75" oninput="calculateProfit()">
+                    </div>
+                </div>
+                 <div class="mt-4">
+                    <label for="otherVariableCosts" class="input-label">Other Variable Costs (per sale):</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="currency-symbol">$</div>
+                        <input type="number" name="otherVariableCosts" id="otherVariableCosts" class="input-field input-field-currency" placeholder="0.00" step="0.01" value="0.10" oninput="calculateProfit()">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">e.g., penny sleeve, toploader if not in shipping.</p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">TCGPlayer & Payment Fees</h2>
+                <div>
+                    <label for="tcgCommissionRate" class="input-label">TCGPlayer Commission Rate:</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <input type="number" name="tcgCommissionRate" id="tcgCommissionRate" class="input-field input-field-percentage" placeholder="e.g., 10.25" step="0.01" value="10.25" oninput="calculateProfit()">
+                        <div class="percentage-symbol">%</div>
+                    </div>
+                     <p class="text-xs text-gray-500 mt-1">e.g., 10.25% for many seller levels.</p>
+                </div>
+                <div class="mt-4">
+                    <label for="paymentProcessingRate" class="input-label">Payment Processing Rate:</label>
+                     <div class="mt-1 relative rounded-md shadow-sm">
+                        <input type="number" name="paymentProcessingRate" id="paymentProcessingRate" class="input-field input-field-percentage" placeholder="e.g., 2.5" step="0.01" value="2.5" oninput="calculateProfit()">
+                        <div class="percentage-symbol">%</div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="paymentProcessingFixedFee" class="input-label">Payment Processing Fixed Fee:</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="currency-symbol">$</div>
+                        <input type="number" name="paymentProcessingFixedFee" id="paymentProcessingFixedFee" class="input-field input-field-currency" placeholder="e.g., 0.30" step="0.01" value="0.30" oninput="calculateProfit()">
+                    </div>
+                </div>
+                 <p class="text-xs text-gray-500 mt-4">
+                    Note: TCGPlayer fees can vary. Some levels might combine commission and processing into a single rate (e.g., "Marketplace Fee Rate"). If so, enter the combined rate in "TCGPlayer Commission Rate" and set "Payment Processing Rate" to 0. Always verify your current TCGPlayer fee agreement.
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-300">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Profit Summary (Custom Input)</h2>
+            <div class="space-y-2 max-w-md mx-auto">
+                <div class="result-item">
+                    <span class="result-label">Total Collected from Buyer:</span>
+                    <span id="totalCollectedFromBuyerDisplay" class="result-value">$0.00</span>
+                </div>
+                <div class="result-item bg-red-50">
+                    <span class="result-label">TCGPlayer Commission Amount:</span>
+                    <span id="tcgCommissionAmountDisplay" class="result-value">-$0.00</span>
+                </div>
+                <div class="result-item bg-red-50">
+                    <span class="result-label">Payment Processing Amount:</span>
+                    <span id="paymentProcessingAmountDisplay" class="result-value">-$0.00</span>
+                </div>
+                <div class="result-item bg-red-100">
+                    <span class="result-label">Total Fees:</span>
+                    <span id="totalFeesDisplay" class="result-value font-bold">-$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Gross Revenue (After Fees):</span>
+                    <span id="revenueAfterFeesDisplay" class="result-value">$0.00</span>
+                </div>
+                 <div class="result-item bg-red-50">
+                    <span class="result-label">Less: Acquisition Cost:</span>
+                    <span id="acquisitionCostDisplay" class="result-value">-$0.00</span>
+                </div>
+                <div class="result-item bg-red-50">
+                    <span class="result-label">Less: Actual Shipping Cost:</span>
+                    <span id="actualShippingCostDisplay" class="result-value">-$0.00</span>
+                </div>
+                 <div class="result-item bg-red-50">
+                    <span class="result-label">Less: Other Variable Costs:</span>
+                    <span id="otherCostsDisplay" class="result-value">-$0.00</span>
+                </div>
+                <div class="result-item border-t-2 border-indigo-500 mt-4 pt-4">
+                    <span class="result-label text-lg text-indigo-700">Net Profit:</span>
+                    <span id="netProfitDisplay" class="result-value text-lg text-indigo-700">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label text-lg">Profit Margin:</span>
+                    <span id="profitMarginDisplay" class="result-value text-lg">0.00%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-gray-300">
+            <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Example Scenarios</h2>
+            <p class="text-sm text-gray-500 text-center mb-6">
+                Calculated using current fee & cost settings from the main calculator. Each scenario below varies the acquisition cost as a percentage of the sale price.
+            </p>
+            <div id="exampleScenariosContainer" class="space-y-8">
+                </div>
+        </div>
+
+
+        <footer class="mt-10 text-center text-xs text-gray-500">
+            <p>&copy; 2025 TCG Profit Calculator. For estimation purposes only.</p>
+            <p>Always verify current TCGPlayer fee structures applicable to your account.</p>
+            <p>This calculator assumes sales tax is handled by TCGPlayer and not part of these calculations.</p>
+        </footer>
+    </div>
+
+    <script>
+
+        document.getElementById('goBackButton').addEventListener('click', function () {
+    window.location.href = "index.html";
+});
+        // Function to safely parse float from input, defaulting to 0 if invalid
+        function getFloatValue(id) {
+            const value = parseFloat(document.getElementById(id).value);
+            return isNaN(value) ? 0 : value;
+        }
+
+        // Function to calculate and display examples based on various acquisition cost scenarios
+        function calculateExamples() {
+            const exampleSalePrices = [5, 10, 20, 30, 50, 75, 100, 200];
+            const acquisitionCostScenarios = [
+                { title: "Acquisition Cost: 20% Lower than Sale Price (80% of SP)", multiplier: 0.80 },
+                { title: "Acquisition Cost: 40% Lower than Sale Price (60% of SP)", multiplier: 0.60 },
+                { title: "Acquisition Cost: 60% Lower than Sale Price (40% of SP)", multiplier: 0.40 }
+            ];
+            const container = document.getElementById('exampleScenariosContainer');
+            container.innerHTML = ''; // Clear previous examples
+            // container.className is already set in HTML as 'space-y-8'
+
+            // Get current fee and cost settings from the main calculator (these are constant for all examples)
+            const shippingChargedToBuyer = getFloatValue('shippingChargedToBuyer');
+            const actualShippingCost = getFloatValue('actualShippingCost');
+            const otherVariableCosts = getFloatValue('otherVariableCosts');
+            const tcgCommissionRate = getFloatValue('tcgCommissionRate');
+            const paymentProcessingRate = getFloatValue('paymentProcessingRate');
+            const paymentProcessingFixedFee = getFloatValue('paymentProcessingFixedFee');
+
+            acquisitionCostScenarios.forEach(scenario => {
+                const scenarioSection = document.createElement('div');
+                scenarioSection.className = 'p-4 bg-gray-50 rounded-lg shadow-md'; // Styling for each scenario block
+
+                const scenarioTitleEl = document.createElement('h3');
+                scenarioTitleEl.className = 'text-lg font-semibold text-indigo-700 mb-4 text-center';
+                scenarioTitleEl.textContent = scenario.title;
+                scenarioSection.appendChild(scenarioTitleEl);
+
+                const examplesGrid = document.createElement('div');
+                // Responsive grid for example cards within each scenario
+                examplesGrid.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4';
+
+                exampleSalePrices.forEach(salePrice => {
+                    const acquisitionPriceForExample = salePrice * scenario.multiplier;
+
+                    const totalCollectedFromBuyer = salePrice + shippingChargedToBuyer;
+                    const tcgCommissionAmount = totalCollectedFromBuyer * (tcgCommissionRate / 100);
+                    const paymentProcessingAmount = (totalCollectedFromBuyer * (paymentProcessingRate / 100)) + paymentProcessingFixedFee;
+                    const totalFees = tcgCommissionAmount + paymentProcessingAmount;
+                    const revenueAfterFees = totalCollectedFromBuyer - totalFees;
+                    
+                    const netProfitExample = revenueAfterFees - acquisitionPriceForExample - actualShippingCost - otherVariableCosts;
+                    const profitMarginExample = totalCollectedFromBuyer !== 0 ? (netProfitExample / totalCollectedFromBuyer) * 100 : 0;
+
+                    const exampleCard = document.createElement('div');
+                    // Styling for each individual example card
+                    exampleCard.className = 'p-3 bg-white rounded-md shadow ring-1 ring-indigo-100 hover:ring-indigo-300 transition-shadow duration-150'; 
+                    
+                    let profitColorClass = 'text-gray-800';
+                    if (netProfitExample > 0) profitColorClass = 'text-green-600';
+                    if (netProfitExample < 0) profitColorClass = 'text-red-600';
+
+                    let marginColorClass = 'text-gray-700';
+                    if (profitMarginExample > 0) marginColorClass = 'text-green-500';
+                    if (profitMarginExample < 0) marginColorClass = 'text-red-500';
+
+                    // Building the content of the example card
+                    exampleCard.innerHTML = `
+                        <h4 class="text-sm font-semibold text-indigo-600 mb-1.5 text-center">Sale: $${salePrice.toFixed(2)}</h4>
+                        <div class="text-xs space-y-0.5">
+                            <p class="flex justify-between"><span>Acq. Cost:</span> <span class="font-medium">$${acquisitionPriceForExample.toFixed(2)}</span></p>
+                            <hr class="my-1">
+                            <p class="flex justify-between"><span>Collected:</span> <span>$${totalCollectedFromBuyer.toFixed(2)}</span></p>
+                            <p class="flex justify-between text-red-400"><span>TCG Comm:</span> <span>-$${tcgCommissionAmount.toFixed(2)}</span></p>
+                            <p class="flex justify-between text-red-400"><span>Paym. Proc:</span> <span>-$${paymentProcessingAmount.toFixed(2)}</span></p>
+                            <p class="flex justify-between text-red-500"><span>Total Fees:</span> <span class="font-medium">-$${totalFees.toFixed(2)}</span></p>
+                            <p class="flex justify-between"><span>Revenue (Post-Fee):</span> <span>$${revenueAfterFees.toFixed(2)}</span></p>
+                            <hr class="my-1">
+                            <p class="flex justify-between text-red-400"><span>Actual Ship:</span> <span>-$${actualShippingCost.toFixed(2)}</span></p>
+                            <p class="flex justify-between text-red-400"><span>Other Costs:</span> <span>-$${otherVariableCosts.toFixed(2)}</span></p>
+                            <hr class="my-1 border-indigo-200">
+                            <p class="flex justify-between font-bold ${profitColorClass} text-sm"><span>Net Profit:</span> <span>$${netProfitExample.toFixed(2)}</span></p>
+                            <p class="flex justify-between font-semibold ${marginColorClass} text-sm"><span>Profit Margin:</span> <span>${profitMarginExample.toFixed(2)}%</span></p>
+                        </div>
+                    `;
+                    examplesGrid.appendChild(exampleCard);
+                });
+                scenarioSection.appendChild(examplesGrid);
+                container.appendChild(scenarioSection);
+            });
+        }
+
+
+        // Main calculation function for the custom input section
+        function calculateProfit() {
+            // Get all input values
+            const acquisitionPrice = getFloatValue('acquisitionPrice');
+            const salePrice = getFloatValue('salePrice');
+            const shippingChargedToBuyer = getFloatValue('shippingChargedToBuyer');
+            const actualShippingCost = getFloatValue('actualShippingCost');
+            const otherVariableCosts = getFloatValue('otherVariableCosts');
+
+            const tcgCommissionRate = getFloatValue('tcgCommissionRate');
+            const paymentProcessingRate = getFloatValue('paymentProcessingRate');
+            const paymentProcessingFixedFee = getFloatValue('paymentProcessingFixedFee');
+
+            // --- Calculations ---
+            const totalCollectedFromBuyer = salePrice + shippingChargedToBuyer;
+            const tcgCommissionAmount = totalCollectedFromBuyer * (tcgCommissionRate / 100);
+            const paymentProcessingAmount = (totalCollectedFromBuyer * (paymentProcessingRate / 100)) + paymentProcessingFixedFee;
+            const totalFees = tcgCommissionAmount + paymentProcessingAmount;
+            const revenueAfterFees = totalCollectedFromBuyer - totalFees;
+            const netProfit = revenueAfterFees - acquisitionPrice - actualShippingCost - otherVariableCosts;
+            const profitMargin = totalCollectedFromBuyer !== 0 ? (netProfit / totalCollectedFromBuyer) * 100 : 0;
+
+            // --- Display Results for Main Calculator ---
+            document.getElementById('totalCollectedFromBuyerDisplay').textContent = `$${totalCollectedFromBuyer.toFixed(2)}`;
+            document.getElementById('tcgCommissionAmountDisplay').textContent = `-$${tcgCommissionAmount.toFixed(2)}`;
+            document.getElementById('paymentProcessingAmountDisplay').textContent = `-$${paymentProcessingAmount.toFixed(2)}`;
+            document.getElementById('totalFeesDisplay').textContent = `-$${totalFees.toFixed(2)}`;
+            document.getElementById('revenueAfterFeesDisplay').textContent = `$${revenueAfterFees.toFixed(2)}`;
+            
+            document.getElementById('acquisitionCostDisplay').textContent = `-$${acquisitionPrice.toFixed(2)}`;
+            document.getElementById('actualShippingCostDisplay').textContent = `-$${actualShippingCost.toFixed(2)}`;
+            document.getElementById('otherCostsDisplay').textContent = `-$${otherVariableCosts.toFixed(2)}`;
+
+            const netProfitDisplay = document.getElementById('netProfitDisplay');
+            netProfitDisplay.textContent = `$${netProfit.toFixed(2)}`;
+            if (netProfit < 0) {
+                netProfitDisplay.classList.remove('text-green-600', 'text-indigo-700');
+                netProfitDisplay.classList.add('text-red-600');
+            } else if (netProfit > 0) {
+                netProfitDisplay.classList.remove('text-red-600', 'text-indigo-700');
+                netProfitDisplay.classList.add('text-green-600');
+            } else {
+                 netProfitDisplay.classList.remove('text-red-600', 'text-green-600');
+                 netProfitDisplay.classList.add('text-indigo-700'); 
+            }
+
+            const profitMarginDisplay = document.getElementById('profitMarginDisplay');
+            profitMarginDisplay.textContent = `${profitMargin.toFixed(2)}%`;
+             if (profitMargin < 0) {
+                profitMarginDisplay.classList.remove('text-green-600');
+                profitMarginDisplay.classList.add('text-red-600');
+            } else if (profitMargin > 0) {
+                profitMarginDisplay.classList.remove('text-red-600');
+                profitMarginDisplay.classList.add('text-green-600');
+            } else {
+                 profitMarginDisplay.classList.remove('text-red-600', 'text-green-600');
+            }
+
+            // Calculate and display examples (this is called every time main inputs change)
+            calculateExamples();
+        }
+
+        // Initial calculation on page load
+        window.onload = function() {
+            calculateProfit(); // This will also call calculateExamples()
+        };
+    </script>
+</body>
+</html>
