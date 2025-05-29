@@ -15,6 +15,11 @@ document.getElementById('closeModalButton').addEventListener('click', () => {
     document.getElementById('errorModal').classList.add('hidden');
 });
 
+document.getElementById('calculateButton').addEventListener('click', function () {
+    window.location.href = "index.html";
+});
+
+
 // Main calculation logic
 document.getElementById('calculateButton').addEventListener('click', function () {
     // --- Get Input Values ---
