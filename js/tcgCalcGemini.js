@@ -15,7 +15,7 @@ document.getElementById('closeModalButton').addEventListener('click', () => {
     document.getElementById('errorModal').classList.add('hidden');
 });
 
-document.getElementById('calculateButton').addEventListener('click', function () {
+document.getElementById('goBackButton').addEventListener('click', function () {
     window.location.href = "index.html";
 });
 
